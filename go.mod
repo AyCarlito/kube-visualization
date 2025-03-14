@@ -1,3 +1,3 @@
 module github.com/AyCarlito/kube-visualization
 
-go 1.23.7
+go 1.23

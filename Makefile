@@ -4,6 +4,11 @@ SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
 
+VERSION ?= $(shell bin/get_version.sh)
+
+IMAGE_TAG_BASE ?= aycarlito/kube-visualization
+IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
+
 ##@ General
 
 # The help target prints out all targets with their descriptions organized
@@ -32,6 +37,10 @@ fmt: goimports ## Run goimports against code.
 vet: ## Run go vet against code.
 	go vet ./...
 
+.PHONY: run
+run:
+	go run ./cmd/kube-visualization/...
+
 ##@ Build
 clean:
 	go clean -modcache
@@ -46,9 +55,9 @@ pre:
 build: pre fmt vet ## Build binary.
 	go build -o bin/kube-visualization ./cmd/kube-visualization/...
 
-.PHONY: run
-run:
-	go run ./cmd/kube-visualization/...
+.PHONY: docker-build
+docker-build:
+	docker build --platform linux/amd64 -t ${IMG} .
 
 ##@ Build Dependencies
 ## Location to install dependencies to
