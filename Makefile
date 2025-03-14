@@ -39,7 +39,7 @@ vet: ## Run go vet against code.
 
 .PHONY: run
 run:
-	go run ./cmd/kube-visualization/...
+	go run ./cmd/kube-visualization/... visualize
 
 ##@ Build
 clean:

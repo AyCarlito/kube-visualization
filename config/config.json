@@ -1,0 +1,13 @@
+{
+    "namespace": "mediakind",
+    "resources": [
+        {
+            "kind": "Pod",
+            "version": "v1"
+        },
+        {
+            "kind": "Deployment",
+            "version": "v1"
+        }
+    ]
+}
