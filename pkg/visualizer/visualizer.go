@@ -3,11 +3,32 @@ package visualizer
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/AyCarlito/kube-visualization/pkg/client"
 	"github.com/AyCarlito/kube-visualization/pkg/config"
 	"github.com/AyCarlito/kube-visualization/pkg/logger"
+	"github.com/awalterschulze/gographviz"
 )
+
+// graphTableLabel is a templated label of a table in a gographviz.Graph.
+var graphTableLabel = "<<TABLE BORDER=\"0\"><TR><TD><IMG SRC=\"%s\" /></TD></TR><TR><TD>%s</TD></TR></TABLE>>"
+
+// getTableLabel takes a resource Kind and name and returns the label of a table in a gographviz.Graph.
+// The kind and name are used to resolve a templated label.
+func getTableLabel(kind, name string) string {
+	return fmt.Sprintf(graphTableLabel, fmt.Sprintf("./assets/%s.png", kind), name)
+}
+
+// getSubgraphName returns the name of a subgraph in a gographviz.Graph.
+func getSubgraphName(i int) string {
+	return fmt.Sprintf("rank_%s", strconv.Itoa(i))
+}
+
+// getNodeName returns the name of a node in a gographviz.Graph.
+func getNodeName(i int) string {
+	return fmt.Sprintf("node_%s", strconv.Itoa(i))
+}
 
 // Visualizer can list namespaced resources in a Kubernetes cluster and generate graphical representations of them.
 type Visualizer struct {
@@ -32,13 +53,66 @@ func (v *Visualizer) Visualize() error {
 	log := logger.LoggerFromContext(v.ctx)
 	log.Info("Gathering resources")
 
+	newSkeletonGraph("Visualization", v.namespace, config.UniqueRanks(v.configuration.Resources))
 	for _, resource := range v.configuration.Resources {
 		log.Info("Gathering: " + resource.String())
-		_, err := v.client.List(v.ctx, resource, v.namespace)
+		_, err := v.client.List(v.ctx, resource.GroupVersionResource, v.namespace)
 		if err != nil {
 			return fmt.Errorf("failed to gather %s: %v", resource.Resource, err)
 		}
 	}
 
 	return nil
+}
+
+// newSkeletonGraph returns a skeleton *gographviz.Graph for later population.
+// The skeleton is composed of:
+//   - Basic object metadata.
+//   - A single subgraph representing the namespace to be visualised.
+//   - A subgraph for each unique rank in the GVRs to be retrieved.
+//   - An invisble node in each rank subgraph.
+//   - Invisible edges connecting the invisble nodes across the rank subgraphs.
+func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Graph {
+	g := gographviz.NewGraph()
+	// In a directed graph, the arrows between nodes have a direction.
+	// Direction indicates ownership, and reflects the owner references stored on the Kubernetes object.
+	g.SetDir(true)
+	g.SetName(name)
+	// Setting the heirarchy here, Top to bottom.
+	g.AddAttr(name, "rankdir", "TB")
+
+	// Highest level subgraph for the namespace.
+	g.AddSubGraph(name, namespace, map[string]string{
+		"label":     getTableLabel("namespaces", namespace),
+		"labeljust": "l",
+		"style":     "dotted",
+	})
+
+	// A subgraph within the namespace subgraph for each kind of resource.
+	for i := range numSubgraphs {
+		g.AddSubGraph(namespace, getSubgraphName(i), map[string]string{
+			"rank":  "same",
+			"style": "invis",
+		})
+
+		// A dummy node in subgraph.
+		g.AddNode(getSubgraphName(i), getNodeName(i), map[string]string{
+			"style":  "invis",
+			"height": "0",
+			"width":  "0",
+			"margin": "0",
+		})
+
+	}
+
+	// Each dummy node is connected with an invisible edge.
+	// Note the index here is offset by 1 as the final node cannot be the source node for a connection as there
+	// is no destination node to connect it to!
+	for i := 0; i < (numSubgraphs - 1); i++ {
+		g.AddEdge(getNodeName(i), getNodeName(i+1), true, map[string]string{"style": "invis"})
+	}
+
+	fmt.Println(g.String())
+
+	return g
 }

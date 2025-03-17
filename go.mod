@@ -3,6 +3,7 @@ module github.com/AyCarlito/kube-visualization
 go 1.23
 
 require (
+	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/spf13/cobra v1.8.1
 	go.uber.org/zap v1.27.0
 	k8s.io/apimachinery v0.29.0

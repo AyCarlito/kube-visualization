@@ -9,9 +9,31 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+// Resource represents a ranked GVR.
+type Resource struct {
+	schema.GroupVersionResource
+	// Rank identifies where the GVR should be ranked in the heirarchical visualization.
+	Rank *int `json:"rank"`
+}
+
+// UniqueRanks returns the number of unique ranks in a slice of Resource.
+func UniqueRanks(resources []Resource) int {
+	ranks := make(map[int]struct{})
+	for _, resource := range resources {
+		if resource.Rank != nil {
+			ranks[*resource.Rank] = struct{}{}
+		}
+	}
+	// Resources are to be placed in the order they are retrieved.
+	if len(resources) > 0 && len(ranks) == 0 {
+		return len(resources)
+	}
+	return len(ranks)
+}
+
 // Config represents a configuration file for the worker.
 type Config struct {
-	Resources []schema.GroupVersionResource `json:"resources"`
+	Resources []Resource `json:"resources"`
 }
 
 // NewConfig reads a configuration file from path and returns a new Config.
