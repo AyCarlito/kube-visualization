@@ -1,4 +1,4 @@
-FROM packages.mediakind.com/mpd-docker/golang:1.23-bookworm AS builder
+FROM golang:1.23-bookworm AS builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
