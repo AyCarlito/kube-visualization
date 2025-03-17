@@ -11,7 +11,7 @@ import (
 
 // Config represents a configuration file for the worker.
 type Config struct {
-	Resources []schema.GroupVersionKind `json:"resources"`
+	Resources []schema.GroupVersionResource `json:"resources"`
 }
 
 // NewConfig reads a configuration file from path and returns a new Config.

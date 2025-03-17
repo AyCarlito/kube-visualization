@@ -29,6 +29,6 @@ var visualizeCmd = &cobra.Command{
 			panic(fmt.Errorf("failed to create new client: %v", err))
 		}
 
-		return visualizer.NewVisualizer(client, cfg, namespace).Visualize()
+		return visualizer.NewVisualizer(cmd.Context(), client, cfg, namespace).Visualize()
 	},
 }
