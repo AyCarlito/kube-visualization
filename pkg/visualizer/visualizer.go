@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
+
+	"github.com/awalterschulze/gographviz"
 
 	"github.com/AyCarlito/kube-visualization/pkg/client"
 	"github.com/AyCarlito/kube-visualization/pkg/config"
 	"github.com/AyCarlito/kube-visualization/pkg/logger"
-	"github.com/awalterschulze/gographviz"
 )
 
 // graphTableLabel is a templated label of a table in a gographviz.Graph.
@@ -25,9 +27,15 @@ func getSubgraphName(i int) string {
 	return fmt.Sprintf("rank_%s", strconv.Itoa(i))
 }
 
-// getNodeName returns the name of a node in a gographviz.Graph.
-func getNodeName(i int) string {
+// getDummyNodeName returns the name of a dummy node for use in a gographviz.Graph.
+func getDummyNodeName(i int) string {
 	return fmt.Sprintf("node_%s", strconv.Itoa(i))
+}
+
+// getSanitizedNodeName returns the sanitized name of a node in a gographviz.Graph.
+// "-" and "." characters are replaced with a "_" character.
+func getSanitizedNodeName(name string) string {
+	return strings.NewReplacer("-", "_", ".", "_").Replace(name)
 }
 
 // Visualizer can list namespaced resources in a Kubernetes cluster and generate graphical representations of them.
@@ -51,17 +59,21 @@ func NewVisualizer(ctx context.Context, c *client.Client, cfg *config.Config, ns
 // Visualize gathers namespaced resources in a Kubernetes cluster and generates a graphical representation of them.
 func (v *Visualizer) Visualize() error {
 	log := logger.LoggerFromContext(v.ctx)
-	log.Info("Gathering resources")
 
-	newSkeletonGraph("Visualization", v.namespace, config.UniqueRanks(v.configuration.Resources))
-	for _, resource := range v.configuration.Resources {
+	g := newSkeletonGraph("Visualization", v.namespace, config.UniqueRanks(v.configuration.Resources))
+	for i, resource := range v.configuration.Resources {
 		log.Info("Gathering: " + resource.String())
-		_, err := v.client.List(v.ctx, resource.GroupVersionResource, v.namespace)
+		pomlList, err := v.client.List(v.ctx, resource.GroupVersionResource, v.namespace)
 		if err != nil {
 			return fmt.Errorf("failed to gather %s: %v", resource.Resource, err)
 		}
-	}
+		for _, poml := range pomlList.Items {
+			g.AddNode(getSubgraphName(i), getSanitizedNodeName(poml.Name), map[string]string{
+				"penwidth": "0",
+			})
 
+		}
+	}
 	return nil
 }
 
@@ -96,7 +108,7 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 		})
 
 		// A dummy node in subgraph.
-		g.AddNode(getSubgraphName(i), getNodeName(i), map[string]string{
+		g.AddNode(getSubgraphName(i), getDummyNodeName(i), map[string]string{
 			"style":  "invis",
 			"height": "0",
 			"width":  "0",
@@ -109,10 +121,10 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	// Note the index here is offset by 1 as the final node cannot be the source node for a connection as there
 	// is no destination node to connect it to!
 	for i := 0; i < (numSubgraphs - 1); i++ {
-		g.AddEdge(getNodeName(i), getNodeName(i+1), true, map[string]string{"style": "invis"})
+		g.AddEdge(getDummyNodeName(i), getDummyNodeName(i+1), true, map[string]string{"style": "invis"})
 	}
 
-	fmt.Println(g.String())
+	//fmt.Println(g.String())
 
 	return g
 }
