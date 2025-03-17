@@ -1,5 +1,4 @@
 {
-    "namespace": "mediakind",
     "resources": [
         {
             "kind": "Pod",

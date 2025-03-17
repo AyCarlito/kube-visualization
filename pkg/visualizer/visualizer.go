@@ -11,13 +11,15 @@ import (
 type Visualizer struct {
 	client        *client.Client
 	configuration config.Config
+	namespace     string
 }
 
 // NewVisualizer returns a new *Visualizer.
-func NewVisualizer(c *client.Client, cfg *config.Config) *Visualizer {
+func NewVisualizer(c *client.Client, cfg *config.Config, ns string) *Visualizer {
 	return &Visualizer{
 		client:        c,
 		configuration: *cfg,
+		namespace:     ns,
 	}
 }
 

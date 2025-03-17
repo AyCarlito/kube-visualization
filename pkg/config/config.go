@@ -11,7 +11,6 @@ import (
 
 // Config represents a configuration file for the worker.
 type Config struct {
-	Namespace string                    `json:"namespace"`
 	Resources []schema.GroupVersionKind `json:"resources"`
 }
 
