@@ -1,0 +1,68 @@
+{
+    "resources": [
+        {
+            "resource": "pods",
+            "version": "v1"
+        },
+        {
+            "resource": "configmaps",
+            "version": "v1"
+        },
+        {
+            "resource": "persistentvolumeclaims",
+            "version": "v1"
+        },
+        {
+            "resource": "secrets",
+            "version": "v1"
+        },
+        {
+            "resource": "serviceaccounts",
+            "version": "v1"
+        },
+        {
+            "resource": "services",
+            "version": "v1"
+        },
+        {
+            "group": "apps",
+            "resource": "daemonsets",
+            "version": "v1"
+        },
+        {
+            "group": "apps",
+            "resource": "deployments",
+            "version": "v1"
+        },
+        {
+            "group": "apps",
+            "resource": "replicasets",
+            "version": "v1"
+        },
+        {
+            "group": "apps",
+            "resource": "statefulsets",
+            "version": "v1"
+        },
+        {
+            "group": "batch",
+            "resource": "cronjobs",
+            "version": "v1"
+        },
+        {
+            "group": "batch",
+            "resource": "jobs",
+            "version": "v1"
+        },
+        {
+            "group": "networking.k8s.io",
+            "resource": "ingresses",
+            "version": "v1"
+        },
+        {
+            "group": "policy",
+            "resource": "poddisruptionbudgets",
+            "version": "v1"
+        }
+    ]
+}

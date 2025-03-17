@@ -1,4 +1,4 @@
-FROM packages.mediakind.com/mpd-docker/golang:1.23-bookworm AS builder
+FROM golang:1.23-bookworm AS builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -10,13 +10,13 @@ ENV GOMODCACHE=/root/.kube-visualization-cache/go-modules
 RUN --mount=type=cache,target="/root/.kube-visualization-cache" go mod download
 
 # Copy the go source
+COPY main.go .
 COPY cmd/ cmd/
 COPY pkg/ pkg/
 
 # Use build cache to speed up the build process on subsequent builds on the same machine
 RUN --mount=type=cache,target="/root/.kube-visualization-cache" CGO_ENABLED=0 \
-    GOOS=linux GOARCH=amd64 go build \
-    -o kube-visualization ./cmd/kube-visualization/
+    GOOS=linux GOARCH=amd64 go build -o kube-visualization
 
 # Use distroless as minimal base image to package the binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
