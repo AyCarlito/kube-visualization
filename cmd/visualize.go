@@ -3,10 +3,11 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/AyCarlito/kube-visualization/pkg/client"
 	"github.com/AyCarlito/kube-visualization/pkg/config"
 	"github.com/AyCarlito/kube-visualization/pkg/visualizer"
-	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -28,7 +29,6 @@ var visualizeCmd = &cobra.Command{
 			panic(fmt.Errorf("failed to create new client: %v", err))
 		}
 
-		// TODO: Any from here should be logged properly.
 		return visualizer.NewVisualizer(client, cfg).Visualize()
 	},
 }

@@ -3,10 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
+
+	"github.com/spf13/cobra"
 
 	"github.com/AyCarlito/kube-visualization/pkg/logger"
-	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 func init() {
@@ -17,15 +18,18 @@ func init() {
 var configurationFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "kube-visualization",
-	Short: "Allows resources in a given namespace in a Kubernetes cluster to be visualised",
+	Use:           "kube-visualization",
+	Short:         "Allows resources in a given namespace in a Kubernetes cluster to be visualised",
+	SilenceErrors: true,
+	SilenceUsage:  true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// Build zap logger using default production configuration.
-		log, err := zap.NewProductionConfig().Build()
+		// Build logger.
+		log, err := logger.NewZapConfig().Build()
 		if err != nil {
 			panic(fmt.Errorf("failed to build zap logger: %v", err))
 		}
 		cmd.SetContext(logger.ContextWithLogger(cmd.Context(), log))
+		cmd.Parent().SetContext(logger.ContextWithLogger(cmd.Parent().Context(), log))
 		return nil
 	},
 }
@@ -33,6 +37,18 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
+		// By default, cobra prints the error and usage string on every error.
+		// We only desire this behaviour in the case where command line parsing fails e.g. unknown command or flag.
+		// Cobra does not provide a mechanism for achieving this fine grain control, so we implement our own.
+		if strings.Contains(err.Error(), "command") || strings.Contains(err.Error(), "flag") {
+			// Parsing errors are printed along with the usage string.
+			fmt.Println(err.Error())
+			fmt.Println(rootCmd.UsageString())
+		} else {
+			// Other errors logged, no usage string displayed.
+			log := logger.LoggerFromContext(rootCmd.Context())
+			log.Error(err.Error())
+		}
 		os.Exit(1)
 	}
 }
