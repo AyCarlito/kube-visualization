@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -8,6 +8,10 @@ import (
 	"github.com/AyCarlito/kube-visualization/pkg/visualizer"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCmd.AddCommand(visualizeCmd)
+}
 
 // visualizeCmd is the command for visualising resources in a Kubernetes cluster.
 var visualizeCmd = &cobra.Command{

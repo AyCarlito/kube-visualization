@@ -3,6 +3,8 @@
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+CMD ?= "visualize"
+FLAGS ?=
 
 VERSION ?= $(shell bin/get_version.sh)
 
@@ -39,7 +41,7 @@ vet: ## Run go vet against code.
 
 .PHONY: run
 run:
-	go run ./cmd/kube-visualization/... visualize
+	go run . $(CMD) $(FLAGS)
 
 ##@ Build
 clean:
