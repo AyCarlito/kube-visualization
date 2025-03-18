@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/awalterschulze/gographviz"
 
@@ -24,18 +23,18 @@ func getTableLabel(kind, name string) string {
 
 // getSubgraphName returns the name of a subgraph in a gographviz.Graph.
 func getSubgraphName(i int) string {
-	return fmt.Sprintf("rank_%s", strconv.Itoa(i))
+	return fmt.Sprintf("rank_%s", fmt.Sprintf("%04s", strconv.Itoa(i)))
 }
 
 // getDummyNodeName returns the name of a dummy node for use in a gographviz.Graph.
 func getDummyNodeName(i int) string {
-	return fmt.Sprintf("node_%s", strconv.Itoa(i))
+	return fmt.Sprintf("node_%s", fmt.Sprintf("%04s", strconv.Itoa(i)))
 }
 
 // getSanitizedNodeName returns the sanitized name of a node in a gographviz.Graph.
-// "-" and "." characters are replaced with a "_" character.
+// The provided name is wrapped in double quotes.
 func getSanitizedNodeName(name string) string {
-	return strings.NewReplacer("-", "_", ".", "_").Replace(name)
+	return fmt.Sprintf("\"%s\"", name)
 }
 
 // Visualizer can list namespaced resources in a Kubernetes cluster and generate graphical representations of them.
@@ -123,8 +122,6 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	for i := 0; i < (numSubgraphs - 1); i++ {
 		g.AddEdge(getDummyNodeName(i), getDummyNodeName(i+1), true, map[string]string{"style": "invis"})
 	}
-
-	//fmt.Println(g.String())
 
 	return g
 }
