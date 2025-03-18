@@ -3,6 +3,7 @@ package visualizer
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/awalterschulze/gographviz"
@@ -53,26 +54,27 @@ func getSanitizedObjectName(name, kind string) string {
 
 // Visualizer can list namespaced resources in a Kubernetes cluster and generate graphical representations of them.
 type Visualizer struct {
-	ctx           context.Context
-	client        *client.Client
-	configuration config.Config
-	namespace     string
+	ctx            context.Context
+	client         *client.Client
+	configuration  config.Config
+	namespace      string
+	outputFilePath string
 }
 
 // NewVisualizer returns a new *Visualizer.
-func NewVisualizer(ctx context.Context, c *client.Client, cfg *config.Config, ns string) *Visualizer {
+func NewVisualizer(ctx context.Context, c *client.Client, cfg *config.Config, ns string, ofp string) *Visualizer {
 	return &Visualizer{
-		ctx:           ctx,
-		client:        c,
-		configuration: *cfg,
-		namespace:     ns,
+		ctx:            ctx,
+		client:         c,
+		configuration:  *cfg,
+		namespace:      ns,
+		outputFilePath: ofp,
 	}
 }
 
 // Visualize gathers namespaced resources in a Kubernetes cluster and generates a graphical representation of them.
 func (v *Visualizer) Visualize() error {
 	log := logger.LoggerFromContext(v.ctx)
-	log.Info("Gathering resources")
 
 	g := newSkeletonGraph("Visualization", v.namespace, config.UniqueRanks(v.configuration.Resources))
 	for i, resource := range v.configuration.Resources {
@@ -102,6 +104,7 @@ func (v *Visualizer) Visualize() error {
 		}
 	}
 
+	log.Info("Graphing gathered resources")
 	// Now create the edges for any ownership relationships that have been tracked.
 	for ownedName, ref := range ownedToOwner {
 		// It's possible that the ownership reference may be towards a resource that isn't part of this visualisation.
@@ -114,7 +117,13 @@ func (v *Visualizer) Visualize() error {
 		})
 	}
 
-	fmt.Println(g.String())
+	// Write the string representation of the graph to file.
+	log.Info("Writing to file: " + v.outputFilePath)
+	err := writeGraphToDotFile(g, v.outputFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to write graph to output dot file: %v", err)
+	}
+
 	return nil
 }
 
@@ -176,4 +185,19 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	g.AddEdge(getSanitizedObjectName(namespace, "namespace"), getDummyNodeName(0), true, map[string]string{"style": "invis"})
 
 	return g
+}
+
+// writeGraphToDotFile writes the string representation of a provided *gographviz.Graph to the provided output file path.
+func writeGraphToDotFile(g *gographviz.Graph, path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return fmt.Errorf("failed to create dot file: %v", err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(g.String())
+	if err != nil {
+		return fmt.Errorf("failed to write to dot file: %v", err)
+	}
+	return nil
 }
