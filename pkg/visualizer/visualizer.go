@@ -24,7 +24,7 @@ func getDummyNodeName(i int) string {
 
 // getImagePath returns the path to an image for a given resource.
 func getImagePath(resource string) string {
-	return getSanitizedObjectName(fmt.Sprintf("./assets/%s.png", resource))
+	return fmt.Sprintf("\"./assets/%s.png\"", resource)
 }
 
 // getNodeLabel returns the label of a node in a gographviz.Graph.
@@ -35,9 +35,9 @@ func getNodeLabel(node string) string {
 }
 
 // getSanitizedObjectName returns the sanitized name of an object in a gographviz.Graph.
-// The provided name is wrapped in double quotes.
-func getSanitizedObjectName(name string) string {
-	return fmt.Sprintf("\"%s\"", name)
+// The provided name and kind are wrapped in double quotes.
+func getSanitizedObjectName(name, kind string) string {
+	return fmt.Sprintf("\"%s_%s\"", kind, name)
 }
 
 // Visualizer can list namespaced resources in a Kubernetes cluster and generate graphical representations of them.
@@ -70,7 +70,7 @@ func (v *Visualizer) Visualize() error {
 			return fmt.Errorf("failed to gather %s: %v", resource.Resource, err)
 		}
 		for _, poml := range pomlList.Items {
-			g.AddNode(getSubgraphName(i), getSanitizedObjectName(poml.Name), map[string]string{
+			g.AddNode(getSubgraphName(i), getSanitizedObjectName(poml.Name, poml.Kind), map[string]string{
 				"penwidth": "0",
 				"label":    getNodeLabel(poml.Name),
 				"image":    getImagePath(resource.Resource),
@@ -104,12 +104,12 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 		"style": "dotted",
 	})
 
-	g.AddNode(namespace, getSanitizedObjectName(fmt.Sprintf(" %s", namespace)), map[string]string{
+	g.AddNode(namespace, getSanitizedObjectName(namespace, "namespace"), map[string]string{
 		"penwidth": "0",
 		"height":   "0",
 		"width":    "0",
 		"margin":   "0",
-		"label":    getNodeLabel(fmt.Sprintf(" %s", namespace)),
+		"label":    getNodeLabel(namespace),
 		"image":    getImagePath("namespaces"),
 	})
 
@@ -138,7 +138,7 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	}
 
 	// Connect the namespace node to the first dummy node.
-	g.AddEdge(getSanitizedObjectName(fmt.Sprintf(" %s", namespace)), getDummyNodeName(0), true, map[string]string{"style": "invis"})
+	g.AddEdge(getSanitizedObjectName(namespace, "namespace"), getDummyNodeName(0), true, map[string]string{"style": "invis"})
 
 	return g
 }
