@@ -4,3 +4,4 @@ bin/*
 
 # Artifacts
 assets/output.dot
+assets/output.png

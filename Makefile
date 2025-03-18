@@ -43,6 +43,10 @@ vet: ## Run go vet against code.
 run:
 	go run . $(CMD) $(FLAGS)
 
+.PHONY: generate
+generate: ## Render the output dot file to generate an image.
+	dot -Tpng:cairo assets/output.dot > assets/output.png
+
 ##@ Build
 clean:
 	go clean -modcache
