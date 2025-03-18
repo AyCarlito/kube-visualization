@@ -12,6 +12,17 @@ import (
 	"github.com/AyCarlito/kube-visualization/pkg/logger"
 )
 
+// referenced is a Kubernetes object that either owns or is owned by another resource.
+type referenced struct {
+	ownerName string
+	ownerKind string
+	ownedKind string
+}
+
+// ownedToOwner maps an owned Kubenetes object name to the object that owns it.
+// Ownership is determined based on the ownerReferences present in object.
+var ownedToOwner = map[string]referenced{}
+
 // getSubgraphName returns the name of a subgraph in a gographviz.Graph.
 func getSubgraphName(i int) string {
 	return fmt.Sprintf("rank_%s", fmt.Sprintf("%04s", strconv.Itoa(i)))
@@ -61,6 +72,7 @@ func NewVisualizer(ctx context.Context, c *client.Client, cfg *config.Config, ns
 // Visualize gathers namespaced resources in a Kubernetes cluster and generates a graphical representation of them.
 func (v *Visualizer) Visualize() error {
 	log := logger.LoggerFromContext(v.ctx)
+	log.Info("Gathering resources")
 
 	g := newSkeletonGraph("Visualization", v.namespace, config.UniqueRanks(v.configuration.Resources))
 	for i, resource := range v.configuration.Resources {
@@ -69,14 +81,37 @@ func (v *Visualizer) Visualize() error {
 		if err != nil {
 			return fmt.Errorf("failed to gather %s: %v", resource.Resource, err)
 		}
+		// Add a node for each object in the List. The node is added to the
 		for _, poml := range pomlList.Items {
 			g.AddNode(getSubgraphName(i), getSanitizedObjectName(poml.Name, poml.Kind), map[string]string{
 				"penwidth": "0",
 				"label":    getNodeLabel(poml.Name),
 				"image":    getImagePath(resource.Resource),
 			})
-
+			// If the object contains a controlling owner reference, track it.
+			// We do this so an edge can be constructed to link the object node to the owner node.
+			// Ideally, we would skip the tracking and just create the edge now. But the owner node may not exist at
+			// this point.
+			if len(poml.OwnerReferences) > 0 && poml.OwnerReferences[0].Controller != nil && *poml.OwnerReferences[0].Controller {
+				ownedToOwner[poml.Name] = referenced{
+					ownerName: poml.OwnerReferences[0].Name,
+					ownerKind: poml.OwnerReferences[0].Kind,
+					ownedKind: poml.Kind,
+				}
+			}
 		}
+	}
+
+	// Now create the edges for any ownership relationships that have been tracked.
+	for ownedName, ref := range ownedToOwner {
+		// It's possible that the ownership reference may be towards a resource that isn't part of this visualisation.
+		// Check for the existence of the owner node first, and skip if it does not exist.
+		if _, ok := g.Nodes.Lookup[getSanitizedObjectName(ref.ownerName, ref.ownerKind)]; !ok {
+			continue
+		}
+		g.AddEdge(getSanitizedObjectName(ref.ownerName, ref.ownerKind), getSanitizedObjectName(ownedName, ref.ownedKind), true, map[string]string{
+			"style": "dashed",
+		})
 	}
 
 	fmt.Println(g.String())
