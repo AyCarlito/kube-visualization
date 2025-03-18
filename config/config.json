@@ -45,6 +45,11 @@
             "version": "v1"
         },
         {
+            "group": "autoscaling",
+            "resource": "horizontalpodautoscalers",
+            "version": "v2"
+        },
+        {
             "group": "batch",
             "resource": "cronjobs",
             "version": "v1"

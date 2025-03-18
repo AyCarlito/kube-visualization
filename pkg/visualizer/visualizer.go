@@ -12,15 +12,6 @@ import (
 	"github.com/AyCarlito/kube-visualization/pkg/logger"
 )
 
-// graphTableLabel is a templated label of a table in a gographviz.Graph.
-var graphTableLabel = "<<TABLE BORDER=\"0\"><TR><TD><IMG SRC=\"%s\" /></TD></TR><TR><TD>%s</TD></TR></TABLE>>"
-
-// getTableLabel takes a resource Kind and name and returns the label of a table in a gographviz.Graph.
-// The kind and name are used to resolve a templated label.
-func getTableLabel(kind, name string) string {
-	return fmt.Sprintf(graphTableLabel, fmt.Sprintf("./assets/%s.png", kind), name)
-}
-
 // getSubgraphName returns the name of a subgraph in a gographviz.Graph.
 func getSubgraphName(i int) string {
 	return fmt.Sprintf("rank_%s", fmt.Sprintf("%04s", strconv.Itoa(i)))
@@ -31,9 +22,21 @@ func getDummyNodeName(i int) string {
 	return fmt.Sprintf("node_%s", fmt.Sprintf("%04s", strconv.Itoa(i)))
 }
 
-// getSanitizedNodeName returns the sanitized name of a node in a gographviz.Graph.
+// getImagePath returns the path to an image for a given resource.
+func getImagePath(resource string) string {
+	return getSanitizedObjectName(fmt.Sprintf("./assets/%s.png", resource))
+}
+
+// getNodeLabel returns the label of a node in a gographviz.Graph.
+// By default, the name of the node is used for the label which is then placed at the centre of the node.
+// Here, we keep the name but prepend newlines so that it is displayed below the node.
+func getNodeLabel(node string) string {
+	return fmt.Sprintf("\"\\n\\n\\n\\n\\n\\n\\n%s\"", node)
+}
+
+// getSanitizedObjectName returns the sanitized name of an object in a gographviz.Graph.
 // The provided name is wrapped in double quotes.
-func getSanitizedNodeName(name string) string {
+func getSanitizedObjectName(name string) string {
 	return fmt.Sprintf("\"%s\"", name)
 }
 
@@ -67,12 +70,16 @@ func (v *Visualizer) Visualize() error {
 			return fmt.Errorf("failed to gather %s: %v", resource.Resource, err)
 		}
 		for _, poml := range pomlList.Items {
-			g.AddNode(getSubgraphName(i), getSanitizedNodeName(poml.Name), map[string]string{
+			g.AddNode(getSubgraphName(i), getSanitizedObjectName(poml.Name), map[string]string{
 				"penwidth": "0",
+				"label":    getNodeLabel(poml.Name),
+				"image":    getImagePath(resource.Resource),
 			})
 
 		}
 	}
+
+	fmt.Println(g.String())
 	return nil
 }
 
@@ -94,9 +101,16 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 
 	// Highest level subgraph for the namespace.
 	g.AddSubGraph(name, namespace, map[string]string{
-		"label":     getTableLabel("namespaces", namespace),
-		"labeljust": "l",
-		"style":     "dotted",
+		"style": "dotted",
+	})
+
+	g.AddNode(namespace, getSanitizedObjectName(fmt.Sprintf(" %s", namespace)), map[string]string{
+		"penwidth": "0",
+		"height":   "0",
+		"width":    "0",
+		"margin":   "0",
+		"label":    getNodeLabel(fmt.Sprintf(" %s", namespace)),
+		"image":    getImagePath("namespaces"),
 	})
 
 	// A subgraph within the namespace subgraph for each kind of resource.
@@ -122,6 +136,9 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	for i := 0; i < (numSubgraphs - 1); i++ {
 		g.AddEdge(getDummyNodeName(i), getDummyNodeName(i+1), true, map[string]string{"style": "invis"})
 	}
+
+	// Connect the namespace node to the first dummy node.
+	g.AddEdge(getSanitizedObjectName(fmt.Sprintf(" %s", namespace)), getDummyNodeName(0), true, map[string]string{"style": "invis"})
 
 	return g
 }
