@@ -14,12 +14,16 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&configurationFile, "config", "config/config.json", "Path to configuration file.")
 	rootCmd.PersistentFlags().StringVar(&namespace, "namespace", "default", "Namespace of resources.")
 	rootCmd.PersistentFlags().StringVar(&outputFile, "output", "assets/output.dot", "Path to output file.")
+	rootCmd.PersistentFlags().StringVar(&labelSelector, "label-selector", "", "Filter resources by label. Comma separated key-value pairs.")
 }
 
 // CLI Flags
-var configurationFile string
-var outputFile string
-var namespace string
+var (
+	configurationFile string
+	outputFile        string
+	namespace         string
+	labelSelector     string
+)
 
 var rootCmd = &cobra.Command{
 	Use:           "kube-visualization",
