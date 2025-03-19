@@ -13,10 +13,12 @@ import (
 func init() {
 	rootCmd.PersistentFlags().StringVar(&configurationFile, "config", "config/config.json", "Path to configuration file.")
 	rootCmd.PersistentFlags().StringVar(&namespace, "namespace", "default", "Namespace of resources.")
+	rootCmd.PersistentFlags().StringVar(&outputFile, "output", "assets/output.dot", "Path to output file.")
 }
 
 // CLI Flags
 var configurationFile string
+var outputFile string
 var namespace string
 
 var rootCmd = &cobra.Command{
