@@ -11,6 +11,8 @@ VERSION ?= $(shell bin/get_version.sh)
 IMAGE_TAG_BASE ?= aycarlito/kube-visualization
 IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
 
+FORMAT ?= png
+
 ##@ General
 
 # The help target prints out all targets with their descriptions organized
@@ -44,8 +46,8 @@ run:
 	go run . $(CMD) $(FLAGS)
 
 .PHONY: generate
-generate: ## Render the output dot file to generate an image.
-	dot -Tpng:cairo assets/output.dot > assets/output.png
+generate: ## Render the output dot file.
+	dot -T$(FORMAT):cairo assets/output.dot > assets/output.$(FORMAT)
 
 ##@ Build
 clean:
