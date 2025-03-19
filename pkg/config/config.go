@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -13,22 +14,27 @@ import (
 type Resource struct {
 	schema.GroupVersionResource
 	// Rank identifies where the GVR should be ranked in the heirarchical visualization.
-	Rank *int `json:"rank"`
+	Rank int `json:"rank"`
 }
 
-// UniqueRanks returns the number of unique ranks in a slice of Resource.
-func UniqueRanks(resources []Resource) int {
-	ranks := make(map[int]struct{})
+// uniqueRanks returns the unique ranks of the Resources.
+func uniqueRanks(resources []Resource) []int {
+	uniqueRanks := []int{}
+	existingRanks := make(map[int]struct{})
 	for _, resource := range resources {
-		if resource.Rank != nil {
-			ranks[*resource.Rank] = struct{}{}
-		}
+		existingRanks[resource.Rank] = struct{}{}
+		uniqueRanks = append(uniqueRanks, resource.Rank)
 	}
-	// Resources are to be placed in the order they are retrieved.
-	if len(resources) > 0 && len(ranks) == 0 {
-		return len(resources)
-	}
-	return len(ranks)
+	return uniqueRanks
+}
+
+// SortedUniqueRanks returns the sorted unique ranks of the Resources.
+func SortedUniqueRanks(resources []Resource) []int {
+	u := uniqueRanks(resources)
+	sort.Slice(u, func(i, j int) bool {
+		return u[i] < u[j]
+	})
+	return u
 }
 
 // Config represents a configuration file for the worker.

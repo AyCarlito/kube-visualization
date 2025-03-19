@@ -3,5 +3,4 @@ bin/*
 !bin/get_version.sh
 
 # Artifacts
-assets/output.dot
-assets/output.png
+assets/output.*

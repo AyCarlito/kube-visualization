@@ -76,8 +76,8 @@ func NewVisualizer(ctx context.Context, c *client.Client, cfg *config.Config, ns
 func (v *Visualizer) Visualize() error {
 	log := logger.LoggerFromContext(v.ctx)
 
-	g := newSkeletonGraph("Visualization", v.namespace, config.UniqueRanks(v.configuration.Resources))
-	for i, resource := range v.configuration.Resources {
+	g := newSkeletonGraph("Visualization", v.namespace, config.SortedUniqueRanks(v.configuration.Resources))
+	for _, resource := range v.configuration.Resources {
 		log.Info("Gathering: " + resource.String())
 		pomlList, err := v.client.List(v.ctx, resource.GroupVersionResource, v.namespace)
 		if err != nil {
@@ -85,7 +85,7 @@ func (v *Visualizer) Visualize() error {
 		}
 		// Add a node for each object in the List. The node is added to the
 		for _, poml := range pomlList.Items {
-			g.AddNode(getSubgraphName(i), getSanitizedObjectName(poml.Name, poml.Kind), map[string]string{
+			g.AddNode(getSubgraphName(resource.Rank), getSanitizedObjectName(poml.Name, poml.Kind), map[string]string{
 				"penwidth": "0",
 				"label":    getNodeLabel(poml.Name),
 				"image":    getImagePath(resource.Resource),
@@ -115,6 +115,7 @@ func (v *Visualizer) Visualize() error {
 		g.AddEdge(getSanitizedObjectName(ref.ownerName, ref.ownerKind), getSanitizedObjectName(ownedName, ref.ownedKind), true, map[string]string{
 			"style": "dashed",
 		})
+
 	}
 
 	// Write the string representation of the graph to file.
@@ -134,7 +135,7 @@ func (v *Visualizer) Visualize() error {
 //   - A subgraph for each unique rank in the GVRs to be retrieved.
 //   - An invisble node in each rank subgraph.
 //   - Invisible edges connecting the invisble nodes across the rank subgraphs.
-func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Graph {
+func newSkeletonGraph(name, namespace string, ranks []int) *gographviz.Graph {
 	g := gographviz.NewGraph()
 	// In a directed graph, the arrows between nodes have a direction.
 	// Direction indicates ownership, and reflects the owner references stored on the Kubernetes object.
@@ -144,11 +145,11 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	g.AddAttr(name, "rankdir", "TB")
 
 	// Highest level subgraph for the namespace.
-	g.AddSubGraph(name, namespace, map[string]string{
+	g.AddSubGraph(name, getSanitizedObjectName(namespace, "namespace"), map[string]string{
 		"style": "dotted",
 	})
 
-	g.AddNode(namespace, getSanitizedObjectName(namespace, "namespace"), map[string]string{
+	g.AddNode(getSanitizedObjectName(namespace, "namespace"), getSanitizedObjectName(namespace, "namespace"), map[string]string{
 		"penwidth": "0",
 		"height":   "0",
 		"width":    "0",
@@ -158,8 +159,8 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 	})
 
 	// A subgraph within the namespace subgraph for each kind of resource.
-	for i := range numSubgraphs {
-		g.AddSubGraph(namespace, getSubgraphName(i), map[string]string{
+	for _, i := range ranks {
+		g.AddSubGraph(getSanitizedObjectName(namespace, "namespace"), getSubgraphName(i), map[string]string{
 			"rank":  "same",
 			"style": "invis",
 		})
@@ -171,18 +172,17 @@ func newSkeletonGraph(name, namespace string, numSubgraphs int) *gographviz.Grap
 			"width":  "0",
 			"margin": "0",
 		})
-
 	}
 
 	// Each dummy node is connected with an invisible edge.
 	// Note the index here is offset by 1 as the final node cannot be the source node for a connection as there
 	// is no destination node to connect it to!
-	for i := 0; i < (numSubgraphs - 1); i++ {
-		g.AddEdge(getDummyNodeName(i), getDummyNodeName(i+1), true, map[string]string{"style": "invis"})
+	for i := 0; i < (len(ranks) - 1); i++ {
+		g.AddEdge(getDummyNodeName(ranks[i]), getDummyNodeName(ranks[i+1]), true, map[string]string{"style": "invis"})
 	}
 
 	// Connect the namespace node to the first dummy node.
-	g.AddEdge(getSanitizedObjectName(namespace, "namespace"), getDummyNodeName(0), true, map[string]string{"style": "invis"})
+	g.AddEdge(getSanitizedObjectName(namespace, "namespace"), getDummyNodeName(ranks[0]), true, map[string]string{"style": "invis"})
 
 	return g
 }
