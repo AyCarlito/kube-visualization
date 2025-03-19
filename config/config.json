@@ -1,72 +1,87 @@
 {
     "resources": [
         {
-            "resource": "pods",
-            "version": "v1"
-        },
-        {
-            "resource": "configmaps",
-            "version": "v1"
-        },
-        {
-            "resource": "persistentvolumeclaims",
-            "version": "v1"
-        },
-        {
-            "resource": "secrets",
-            "version": "v1"
-        },
-        {
+            "rank": 10,
             "resource": "serviceaccounts",
             "version": "v1"
         },
         {
-            "resource": "services",
+            "rank": 70,
+            "resource": "secrets",
             "version": "v1"
         },
         {
-            "group": "apps",
-            "resource": "daemonsets",
+            "rank": 80,
+            "resource": "configmaps",
             "version": "v1"
         },
         {
-            "group": "apps",
-            "resource": "deployments",
-            "version": "v1"
-        },
-        {
-            "group": "apps",
-            "resource": "replicasets",
-            "version": "v1"
-        },
-        {
-            "group": "apps",
-            "resource": "statefulsets",
-            "version": "v1"
-        },
-        {
+            "rank": 90,
             "group": "autoscaling",
             "resource": "horizontalpodautoscalers",
             "version": "v2"
         },
         {
+            "rank": 100,
+            "group": "apps",
+            "resource": "deployments",
+            "version": "v1"
+        },
+        {
+            "rank": 100,
+            "group": "apps",
+            "resource": "daemonsets",
+            "version": "v1"
+        },
+        {
+            "rank": 100,
+            "group": "apps",
+            "resource": "statefulsets",
+            "version": "v1"
+        },
+        {
+            "rank": 100,
             "group": "batch",
             "resource": "cronjobs",
             "version": "v1"
         },
         {
+            "rank": 100,
             "group": "batch",
             "resource": "jobs",
             "version": "v1"
         },
         {
-            "group": "networking.k8s.io",
-            "resource": "ingresses",
+            "rank": 110,
+            "group": "apps",
+            "resource": "replicasets",
             "version": "v1"
         },
         {
+            "rank": 120,
+            "resource": "pods",
+            "version": "v1"
+        },
+        {
+            "rank": 140,
+            "resource": "persistentvolumeclaims",
+            "version": "v1"
+        },
+        {
+            "rank": 130,
             "group": "policy",
             "resource": "poddisruptionbudgets",
+            "version": "v1"
+        },
+        {
+            "rank": 140,
+            "resource": "services",
+            "version": "v1"
+        },
+        {
+            "rank": 150,
+            "group": "networking.k8s.io",
+            "resource": "ingresses",
             "version": "v1"
         }
     ]
