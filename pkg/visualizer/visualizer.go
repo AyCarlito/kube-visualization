@@ -145,11 +145,11 @@ func newSkeletonGraph(name, namespace string, ranks []int) *gographviz.Graph {
 	g.AddAttr(name, "rankdir", "TB")
 
 	// Highest level subgraph for the namespace.
-	g.AddSubGraph(name, namespace, map[string]string{
+	g.AddSubGraph(name, getSanitizedObjectName(namespace, "namespace"), map[string]string{
 		"style": "dotted",
 	})
 
-	g.AddNode(namespace, getSanitizedObjectName(namespace, "namespace"), map[string]string{
+	g.AddNode(getSanitizedObjectName(namespace, "namespace"), getSanitizedObjectName(namespace, "namespace"), map[string]string{
 		"penwidth": "0",
 		"height":   "0",
 		"width":    "0",
@@ -160,7 +160,7 @@ func newSkeletonGraph(name, namespace string, ranks []int) *gographviz.Graph {
 
 	// A subgraph within the namespace subgraph for each kind of resource.
 	for _, i := range ranks {
-		g.AddSubGraph(namespace, getSubgraphName(i), map[string]string{
+		g.AddSubGraph(getSanitizedObjectName(namespace, "namespace"), getSubgraphName(i), map[string]string{
 			"rank":  "same",
 			"style": "invis",
 		})
