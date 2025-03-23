@@ -43,7 +43,7 @@ func getImagePath(resource string) string {
 // By default, the name of the node is used for the label which is then placed at the centre of the node.
 // Here, we keep the name but prepend newlines so that it is displayed below the node.
 func getNodeLabel(node string) string {
-	return fmt.Sprintf("\"\\n\\n\\n\\n\\n\\n\\n%s\"", node)
+	return fmt.Sprintf("\"\\n\\n\\n\\n\\n\\n\\n\\n\\n%s\"", node)
 }
 
 // getSanitizedObjectName returns the sanitized name of an object in a gographviz.Graph.
