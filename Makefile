@@ -8,10 +8,15 @@ FLAGS ?=
 
 VERSION ?= $(shell bin/get_version.sh)
 
+IMAGE_REGISTRY ?=
 IMAGE_TAG_BASE ?= aycarlito/kube-visualization
 IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
 
 FORMAT ?= png
+
+ifneq ($(IMAGE_REGISTRY),)
+IMG := $(IMAGE_REGISTRY)/$(IMG)
+endif
 
 ##@ General
 
@@ -66,6 +71,10 @@ build: pre fmt vet ## Build binary.
 .PHONY: docker-build
 docker-build:
 	docker build --platform linux/amd64 -t ${IMG} .
+
+.PHONY: docker-push
+docker-push:
+	docker push ${IMG}
 
 ##@ Build Dependencies
 ## Location to install dependencies to
