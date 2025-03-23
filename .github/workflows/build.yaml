@@ -34,4 +34,3 @@ jobs:
     - name: Push docker image
       run: |
         make docker-push 
-    
