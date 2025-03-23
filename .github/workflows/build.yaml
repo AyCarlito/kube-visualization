@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - github_build
+      - main
 
 env:
   IMAGE_REGISTRY: ghcr.io
