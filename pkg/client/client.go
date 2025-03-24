@@ -6,7 +6,7 @@ import (
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
@@ -71,7 +71,7 @@ func NewClient(opts ...OptFunc) (*Client, error) {
 
 // List returns a list of objects in a namespace for a given GVK.
 // The full object definition is not returned, only the metadata.
-func (c *Client) List(ctx context.Context, gvr schema.GroupVersionResource, namespace string) (*metav1.PartialObjectMetadataList, error) {
+func (c *Client) List(ctx context.Context, gvr schema.GroupVersionResource, namespace string) (*unstructured.UnstructuredList, error) {
 	// Timebox the API call.
 	timeoutCtx, cxl := context.WithTimeout(ctx, requestTimeout)
 	defer cxl()
@@ -82,12 +82,5 @@ func (c *Client) List(ctx context.Context, gvr schema.GroupVersionResource, name
 		return nil, fmt.Errorf("failed to list objects: %v", err)
 	}
 
-	// We're only intersted in the metadata.
-	var poml metav1.PartialObjectMetadataList
-	err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredList.UnstructuredContent(), &poml)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert unstructured list: %v", err)
-	}
-
-	return &poml, nil
+	return unstructuredList, nil
 }

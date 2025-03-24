@@ -6,9 +6,19 @@ import (
 	"strconv"
 
 	"github.com/awalterschulze/gographviz"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/AyCarlito/kube-visualization/pkg/config"
+)
+
+const (
+	Endpoints string = "Endpoints"
+	Service   string = "Service"
+	Ingress   string = "Ingress"
+	Pod       string = "Pod"
 )
 
 // Grapher creates gographviz graphs.
@@ -138,25 +148,84 @@ func (g *Grapher) Connect() {
 }
 
 // Populate populates the graph.
-func (g *Grapher) Populate(pomlList *metav1.PartialObjectMetadataList, resource config.Resource) {
+func (g *Grapher) Populate(objects *unstructured.UnstructuredList, resource config.Resource) {
 	// Add a node for each object in the List to the subgraph corresponding to the resource's rank.
-	for _, poml := range pomlList.Items {
-		g.graph.AddNode(getSubgraphName(resource.Rank), getSanitizedObjectName(poml.Name, poml.Kind), map[string]string{
+	for _, object := range objects.Items {
+		name := object.GetName()
+		kind := object.GetKind()
+		g.graph.AddNode(getSubgraphName(resource.Rank), getSanitizedObjectName(name, kind), map[string]string{
 			"penwidth": "0",
-			"label":    getNodeLabel(poml.Name),
+			"label":    getNodeLabel(name),
 			"image":    getImagePath(resource.Resource),
 		})
 		// If the object contains a controlling owner reference, track it.
 		// We do this so an edge can be constructed to link the object node to the owner node.
 		// Ideally, we would skip the tracking and just create the edge now. But the owner node may not exist at
 		// this point.
-		if len(poml.OwnerReferences) > 0 && poml.OwnerReferences[0].Controller != nil && *poml.OwnerReferences[0].Controller {
+		ownerReferences := object.GetOwnerReferences()
+		if len(ownerReferences) > 0 && ownerReferences[0].Controller != nil && *ownerReferences[0].Controller {
 			g.connections = append(g.connections, connection{
-				sourceName:      poml.OwnerReferences[0].Name,
-				sourceKind:      poml.OwnerReferences[0].Kind,
-				destinationName: poml.Name,
-				destinationKind: poml.Kind,
+				sourceName:      ownerReferences[0].Name,
+				sourceKind:      ownerReferences[0].Kind,
+				destinationName: name,
+				destinationKind: kind,
 			})
+		}
+
+		// Services are connected to Endpoints by name.
+		if kind == Service {
+			g.connections = append(g.connections, connection{
+				sourceName:      name,
+				sourceKind:      kind,
+				destinationName: name,
+				destinationKind: Endpoints,
+			})
+		}
+
+		// Endpoints are connected to the pods referenced in its subsets.
+		if kind == Endpoints {
+			endpoints := &corev1.Endpoints{}
+			runtime.DefaultUnstructuredConverter.FromUnstructured(object.UnstructuredContent(), endpoints)
+			for _, subset := range endpoints.Subsets {
+				for _, address := range subset.Addresses {
+					if address.TargetRef == nil || address.TargetRef.Kind != Pod {
+						continue
+					}
+					g.connections = append(g.connections, connection{
+						sourceName:      name,
+						sourceKind:      kind,
+						destinationName: address.TargetRef.Name,
+						destinationKind: Pod,
+					})
+				}
+			}
+		}
+
+		// Ingresses are connected to the service defined in the IngressBackend.
+		if kind == Ingress {
+			ingress := &networkingv1.Ingress{}
+			runtime.DefaultUnstructuredConverter.FromUnstructured(object.UnstructuredContent(), ingress)
+			for _, rule := range ingress.Spec.Rules {
+				if rule.IngressRuleValue.HTTP == nil {
+					continue
+				}
+				for _, path := range rule.IngressRuleValue.HTTP.Paths {
+					var serviceName string
+					if path.Backend.Resource != nil && path.Backend.Resource.Kind == Service {
+						serviceName = path.Backend.Resource.Name
+					} else if path.Backend.Service != nil {
+						serviceName = path.Backend.Service.Name
+					} else {
+						continue
+					}
+					g.connections = append(g.connections, connection{
+						sourceName:      name,
+						sourceKind:      kind,
+						destinationName: serviceName,
+						destinationKind: Service,
+					})
+				}
+			}
 		}
 
 	}

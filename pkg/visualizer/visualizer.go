@@ -39,11 +39,11 @@ func (v *Visualizer) Visualize() error {
 	v.grapher.Scaffold("Visualization", v.namespace, config.SortedUniqueRanks(v.configuration.Resources))
 	for _, resource := range v.configuration.Resources {
 		log.Info("Gathering: " + resource.String())
-		pomlList, err := v.client.List(v.ctx, resource.GroupVersionResource, v.namespace)
+		objects, err := v.client.List(v.ctx, resource.GroupVersionResource, v.namespace)
 		if err != nil {
 			return fmt.Errorf("failed to gather %s: %v", resource.Resource, err)
 		}
-		v.grapher.Populate(pomlList, resource)
+		v.grapher.Populate(objects, resource)
 	}
 
 	log.Info("Connecting related resources")
