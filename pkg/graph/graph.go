@@ -15,10 +15,13 @@ import (
 )
 
 const (
-	Endpoints string = "Endpoints"
-	Service   string = "Service"
-	Ingress   string = "Ingress"
-	Pod       string = "Pod"
+	ConfigMap             string = "ConfigMap"
+	Endpoints             string = "Endpoints"
+	Ingress               string = "Ingress"
+	PersistentVolumeClaim string = "PersistentVolumeClaim"
+	Pod                   string = "Pod"
+	Secret                string = "Secret"
+	Service               string = "Service"
 )
 
 // Grapher creates gographviz graphs.
@@ -225,6 +228,33 @@ func (g *Grapher) Populate(objects *unstructured.UnstructuredList, resource conf
 						destinationKind: Service,
 					})
 				}
+			}
+		}
+
+		// Pods are connected to ConfigMaps, Secrets and PersistentVolumeClaims through their volumes.
+		if kind == Pod {
+			pod := &corev1.Pod{}
+			runtime.DefaultUnstructuredConverter.FromUnstructured(object.UnstructuredContent(), pod)
+			for _, volume := range pod.Spec.Volumes {
+				var volumeName, volumeKind string
+				if volume.ConfigMap != nil {
+					volumeName = volume.ConfigMap.Name
+					volumeKind = ConfigMap
+				} else if volume.Secret != nil {
+					volumeName = volume.Secret.SecretName
+					volumeKind = Secret
+				} else if volume.PersistentVolumeClaim != nil {
+					volumeName = volume.PersistentVolumeClaim.ClaimName
+					volumeKind = PersistentVolumeClaim
+				} else {
+					continue
+				}
+				g.connections = append(g.connections, connection{
+					sourceName:      volumeName,
+					sourceKind:      volumeKind,
+					destinationName: name,
+					destinationKind: kind,
+				})
 			}
 		}
 
