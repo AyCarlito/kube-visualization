@@ -2,9 +2,9 @@ name: build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
 env:
   IMAGE_REGISTRY: ghcr.io
