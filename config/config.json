@@ -63,14 +63,8 @@
             "version": "v1"
         },
         {
-            "rank": 140,
-            "resource": "persistentvolumeclaims",
-            "version": "v1"
-        },
-        {
             "rank": 130,
-            "group": "policy",
-            "resource": "poddisruptionbudgets",
+            "resource": "endpoints",
             "version": "v1"
         },
         {
@@ -82,6 +76,17 @@
             "rank": 150,
             "group": "networking.k8s.io",
             "resource": "ingresses",
+            "version": "v1"
+        },
+        {
+            "rank": 160,
+            "resource": "persistentvolumeclaims",
+            "version": "v1"
+        },
+        {
+            "rank": 160,
+            "group": "policy",
+            "resource": "poddisruptionbudgets",
             "version": "v1"
         }
     ]
