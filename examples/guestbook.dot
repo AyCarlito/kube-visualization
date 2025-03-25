@@ -1,0 +1,141 @@
+digraph Visualization {
+	rankdir=TB;
+	node_0010->node_0070[ style=invis ];
+	node_0070->node_0080[ style=invis ];
+	node_0080->node_0090[ style=invis ];
+	node_0090->node_0100[ style=invis ];
+	node_0100->node_0100[ style=invis ];
+	node_0100->node_0100[ style=invis ];
+	node_0100->node_0100[ style=invis ];
+	node_0100->node_0100[ style=invis ];
+	node_0100->node_0110[ style=invis ];
+	node_0110->node_0120[ style=invis ];
+	node_0120->node_0130[ style=invis ];
+	node_0130->node_0140[ style=invis ];
+	node_0140->node_0150[ style=invis ];
+	node_0150->node_0160[ style=invis ];
+	node_0160->node_0160[ style=invis ];
+	"namespace_default"->node_0010[ style=invis ];
+	"Deployment_frontend"->"ReplicaSet_frontend-7fd64c8b4c"[ style=dashed ];
+	"Deployment_redis-follower"->"ReplicaSet_redis-follower-7b9cdf45b9"[ style=dashed ];
+	"Deployment_redis-leader"->"ReplicaSet_redis-leader-5596fc7b68"[ style=dashed ];
+	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-hpztc"[ style=dashed ];
+	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-pld9z"[ style=dashed ];
+	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-sbbdt"[ style=dashed ];
+	"ReplicaSet_redis-follower-7b9cdf45b9"->"Pod_redis-follower-7b9cdf45b9-6hzpj"[ style=dashed ];
+	"ReplicaSet_redis-follower-7b9cdf45b9"->"Pod_redis-follower-7b9cdf45b9-t2wrf"[ style=dashed ];
+	"ReplicaSet_redis-leader-5596fc7b68"->"Pod_redis-leader-5596fc7b68-4zzz5"[ style=dashed ];
+	"Endpoints_redis-follower"->"Pod_redis-follower-7b9cdf45b9-t2wrf"[ style=dashed ];
+	"Endpoints_redis-follower"->"Pod_redis-follower-7b9cdf45b9-6hzpj"[ style=dashed ];
+	"Endpoints_redis-leader"->"Pod_redis-leader-5596fc7b68-4zzz5"[ style=dashed ];
+	"Service_frontend"->"Endpoints_frontend"[ style=dashed ];
+	"Service_kubernetes"->"Endpoints_kubernetes"[ style=dashed ];
+	"Service_redis-follower"->"Endpoints_redis-follower"[ style=dashed ];
+	"Service_redis-leader"->"Endpoints_redis-leader"[ style=dashed ];
+	subgraph "namespace_default" {
+	style=dotted;
+	"namespace_default" [ height=0, image="assets/namespaces.png", label="\n\n\n\n\n\n\n\n\ndefault", margin=0, penwidth=0, width=0 ];
+	subgraph rank_0010 {
+	rank=same;
+	style=invis;
+	"ServiceAccount_default" [ image="assets/serviceaccounts.png", label="\n\n\n\n\n\n\n\n\ndefault", penwidth=0 ];
+	node_0010 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0070 {
+	rank=same;
+	style=invis;
+	node_0070 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0080 {
+	rank=same;
+	style=invis;
+	"ConfigMap_kube-root-ca.crt" [ image="assets/configmaps.png", label="\n\n\n\n\n\n\n\n\nkube-root-ca.crt", penwidth=0 ];
+	node_0080 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0090 {
+	rank=same;
+	style=invis;
+	node_0090 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0100 {
+	rank=same;
+	style=invis;
+	"Deployment_frontend" [ image="assets/deployments.png", label="\n\n\n\n\n\n\n\n\nfrontend", penwidth=0 ];
+	"Deployment_redis-follower" [ image="assets/deployments.png", label="\n\n\n\n\n\n\n\n\nredis-follower", penwidth=0 ];
+	"Deployment_redis-leader" [ image="assets/deployments.png", label="\n\n\n\n\n\n\n\n\nredis-leader", penwidth=0 ];
+	node_0100 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0110 {
+	rank=same;
+	style=invis;
+	"ReplicaSet_frontend-7fd64c8b4c" [ image="assets/replicasets.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c", penwidth=0 ];
+	"ReplicaSet_redis-follower-7b9cdf45b9" [ image="assets/replicasets.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9", penwidth=0 ];
+	"ReplicaSet_redis-leader-5596fc7b68" [ image="assets/replicasets.png", label="\n\n\n\n\n\n\n\n\nredis-leader-5596fc7b68", penwidth=0 ];
+	node_0110 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0120 {
+	rank=same;
+	style=invis;
+	"Pod_frontend-7fd64c8b4c-hpztc" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-hpztc", penwidth=0 ];
+	"Pod_frontend-7fd64c8b4c-pld9z" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-pld9z", penwidth=0 ];
+	"Pod_frontend-7fd64c8b4c-sbbdt" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-sbbdt", penwidth=0 ];
+	"Pod_redis-follower-7b9cdf45b9-6hzpj" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9-6hzpj", penwidth=0 ];
+	"Pod_redis-follower-7b9cdf45b9-t2wrf" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9-t2wrf", penwidth=0 ];
+	"Pod_redis-leader-5596fc7b68-4zzz5" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-leader-5596fc7b68-4zzz5", penwidth=0 ];
+	node_0120 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0130 {
+	rank=same;
+	style=invis;
+	"Endpoints_frontend" [ image="assets/endpoints.png", label="\n\n\n\n\n\n\n\n\nfrontend", penwidth=0 ];
+	"Endpoints_kubernetes" [ image="assets/endpoints.png", label="\n\n\n\n\n\n\n\n\nkubernetes", penwidth=0 ];
+	"Endpoints_redis-follower" [ image="assets/endpoints.png", label="\n\n\n\n\n\n\n\n\nredis-follower", penwidth=0 ];
+	"Endpoints_redis-leader" [ image="assets/endpoints.png", label="\n\n\n\n\n\n\n\n\nredis-leader", penwidth=0 ];
+	node_0130 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0140 {
+	rank=same;
+	style=invis;
+	"Service_frontend" [ image="assets/services.png", label="\n\n\n\n\n\n\n\n\nfrontend", penwidth=0 ];
+	"Service_kubernetes" [ image="assets/services.png", label="\n\n\n\n\n\n\n\n\nkubernetes", penwidth=0 ];
+	"Service_redis-follower" [ image="assets/services.png", label="\n\n\n\n\n\n\n\n\nredis-follower", penwidth=0 ];
+	"Service_redis-leader" [ image="assets/services.png", label="\n\n\n\n\n\n\n\n\nredis-leader", penwidth=0 ];
+	node_0140 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0150 {
+	rank=same;
+	style=invis;
+	node_0150 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+	subgraph rank_0160 {
+	rank=same;
+	style=invis;
+	node_0160 [ height=0, margin=0, style=invis, width=0 ];
+
+}
+;
+
+}
+;
+
+}
