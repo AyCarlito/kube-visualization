@@ -54,6 +54,15 @@ run:
 generate: ## Render the output dot file.
 	dot -T$(FORMAT):cairo assets/output.dot > assets/output.$(FORMAT)
 
+.PHONY: docker-run
+docker-run:
+	docker run --network host \
+	--user $(shell id -u):$(shell id -g) \
+	-v $(shell pwd)/assets:/assets \
+	-v $(shell pwd)/config:/config:ro \
+	-v ~/.kube/config:/.kube/config \
+	$(IMG) $(CMD) $(FLAGS) 
+
 ##@ Build
 clean:
 	go clean -modcache
