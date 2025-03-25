@@ -11,6 +11,7 @@ import (
 )
 
 func init() {
+	rootCmd.PersistentFlags().StringVar(&assetsBasePath, "assets", "assets/", "Path to assets directory.")
 	rootCmd.PersistentFlags().StringVar(&configurationFile, "config", "config/config.json", "Path to configuration file.")
 	rootCmd.PersistentFlags().StringVar(&namespace, "namespace", "default", "Namespace of resources.")
 	rootCmd.PersistentFlags().StringVar(&outputFile, "output", "assets/output.dot", "Path to output file.")
@@ -19,6 +20,7 @@ func init() {
 
 // CLI Flags
 var (
+	assetsBasePath    string
 	configurationFile string
 	outputFile        string
 	namespace         string

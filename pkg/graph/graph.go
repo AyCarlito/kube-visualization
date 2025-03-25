@@ -3,6 +3,7 @@ package graph
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/awalterschulze/gographviz"
@@ -28,12 +29,13 @@ const (
 type Grapher struct {
 	connections    []connection
 	graph          *gographviz.Graph
+	assetsBasePath string
 	outputFilePath string
 }
 
 // NewGrapher returns a new *Grapher.
-func NewGraph(o string) *Grapher {
-	return &Grapher{outputFilePath: o}
+func NewGraph(a, o string) *Grapher {
+	return &Grapher{assetsBasePath: a, outputFilePath: o}
 }
 
 // connection is a link between two Kubernetes objects.
@@ -55,8 +57,8 @@ func getDummyNodeName(i int) string {
 }
 
 // getImagePath returns the path to an image for a given resource.
-func getImagePath(resource string) string {
-	return fmt.Sprintf("\"./assets/%s.png\"", resource)
+func (g *Grapher) getImagePath(resource string) string {
+	return fmt.Sprintf("\"%s\"", filepath.Join(g.assetsBasePath, resource+".png"))
 }
 
 // getNodeLabel returns the label of a node in a gographviz.Graph.
@@ -99,7 +101,7 @@ func (g *Grapher) Scaffold(name, namespace string, ranks []int) {
 		"width":    "0",
 		"margin":   "0",
 		"label":    getNodeLabel(namespace),
-		"image":    getImagePath("namespaces"),
+		"image":    g.getImagePath("namespaces"),
 	})
 
 	// A subgraph within the namespace subgraph for each kind of resource.
@@ -159,7 +161,7 @@ func (g *Grapher) Populate(objects *unstructured.UnstructuredList, resource conf
 		g.graph.AddNode(getSubgraphName(resource.Rank), getSanitizedObjectName(name, kind), map[string]string{
 			"penwidth": "0",
 			"label":    getNodeLabel(name),
-			"image":    getImagePath(resource.Resource),
+			"image":    g.getImagePath(resource.Resource),
 		})
 		// If the object contains a controlling owner reference, track it.
 		// We do this so an edge can be constructed to link the object node to the owner node.
