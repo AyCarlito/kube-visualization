@@ -40,8 +40,7 @@ Install the following:
 
 - A GVR is a unique identifier for a resource within Kubernetes, comprising three key elements:
   - Group: Resources are organized into "groups" e.g. `core` or `apps`.
-  - Version: Kubernetes follows a semantic versioning scheme when making changes to APIs.
-This version may indicate stability, e.g `v1alpha1` or `v1`.
+  - Version: The version of the API e.g `v1alpha1` or `v1`.
   - Resource: This is the type of resource being referred to e.g `pods` or `deployments`.
 - The "rank" is a novel concept of this application. The relative ranking of one resource to another, dicatates where
 each resource is placed in the visualisation heirarchy. Resources are plotted top to bottom, with smaller ranks
