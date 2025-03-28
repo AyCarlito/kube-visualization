@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Return a SemVer compliant version for the current commit.
-# - major, minor and patch numbers are the latest git tag.
+# - major, minor and patch numbers are the latest git tag (with the "v" prefix removed).
 # "-build" is appended in the case of:
 #       - local builds on all branches
 #       - CI builds on non-release branches
@@ -9,7 +9,7 @@
 #       - dev.$BRANCH_NAME.$BUILD_ID (CI)
 #       - dev.branch.sha (Local)
 
-tag=$(git describe --tags --abbrev=0)
+major_minor_patch=$(git describe --tags --abbrev=0 | cut -c2-)
 
 current_branch="${BRANCH_NAME}"
 if [ -z "${BRANCH_NAME}" ]; then
@@ -36,9 +36,9 @@ else
 fi
 
 # Special case when building on a release branch
-version="${tag}-${build}"
+version="${major_minor_patch}-${build}"
 if [ "${current_branch:0:7}" = "release" ]; then
-    version="${tag}"
+    version="${major_minor_patch}"
 fi
 
 echo "${version}"
