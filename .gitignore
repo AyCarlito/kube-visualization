@@ -2,6 +2,7 @@
 bin/*
 !bin/bump_tag.sh
 !bin/get_version.sh
+!bin/release.sh
 
 # Artifacts
 assets/output.*
