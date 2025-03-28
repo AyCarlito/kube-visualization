@@ -18,11 +18,16 @@ COPY pkg/ pkg/
 RUN --mount=type=cache,target="/root/.kube-visualization-cache" CGO_ENABLED=0 \
     GOOS=linux GOARCH=amd64 go build -o kube-visualization
 
+COPY assets/ assets/
+COPY config/ config/
+
 # Use distroless as minimal base image to package the binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/kube-visualization .
+COPY --from=builder /workspace/assets/ assets/
+COPY --from=builder /workspace/config/ config/
 USER 65532:65532
 
 ENTRYPOINT ["/kube-visualization"]
