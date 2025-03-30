@@ -19,19 +19,22 @@ digraph Visualization {
 	"Deployment_frontend"->"ReplicaSet_frontend-7fd64c8b4c"[ style=dashed ];
 	"Deployment_redis-follower"->"ReplicaSet_redis-follower-7b9cdf45b9"[ style=dashed ];
 	"Deployment_redis-leader"->"ReplicaSet_redis-leader-5596fc7b68"[ style=dashed ];
-	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-hpztc"[ style=dashed ];
-	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-pld9z"[ style=dashed ];
-	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-sbbdt"[ style=dashed ];
-	"ReplicaSet_redis-follower-7b9cdf45b9"->"Pod_redis-follower-7b9cdf45b9-6hzpj"[ style=dashed ];
-	"ReplicaSet_redis-follower-7b9cdf45b9"->"Pod_redis-follower-7b9cdf45b9-t2wrf"[ style=dashed ];
-	"ReplicaSet_redis-leader-5596fc7b68"->"Pod_redis-leader-5596fc7b68-4zzz5"[ style=dashed ];
-	"Endpoints_redis-follower"->"Pod_redis-follower-7b9cdf45b9-t2wrf"[ style=dashed ];
-	"Endpoints_redis-follower"->"Pod_redis-follower-7b9cdf45b9-6hzpj"[ style=dashed ];
-	"Endpoints_redis-leader"->"Pod_redis-leader-5596fc7b68-4zzz5"[ style=dashed ];
-	"Service_frontend"->"Endpoints_frontend"[ style=dashed ];
-	"Service_kubernetes"->"Endpoints_kubernetes"[ style=dashed ];
-	"Service_redis-follower"->"Endpoints_redis-follower"[ style=dashed ];
-	"Service_redis-leader"->"Endpoints_redis-leader"[ style=dashed ];
+	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-kw4cs"[ style=dashed ];
+	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-tvc2b"[ style=dashed ];
+	"ReplicaSet_frontend-7fd64c8b4c"->"Pod_frontend-7fd64c8b4c-xpk2t"[ style=dashed ];
+	"ReplicaSet_redis-follower-7b9cdf45b9"->"Pod_redis-follower-7b9cdf45b9-fbhqb"[ style=dashed ];
+	"ReplicaSet_redis-follower-7b9cdf45b9"->"Pod_redis-follower-7b9cdf45b9-k5trw"[ style=dashed ];
+	"ReplicaSet_redis-leader-5596fc7b68"->"Pod_redis-leader-5596fc7b68-krrsc"[ style=dashed ];
+	"Endpoints_frontend"->"Pod_frontend-7fd64c8b4c-tvc2b"[ label="80/TCP/\n", style=dashed ];
+	"Endpoints_frontend"->"Pod_frontend-7fd64c8b4c-kw4cs"[ label="80/TCP/\n", style=dashed ];
+	"Endpoints_frontend"->"Pod_frontend-7fd64c8b4c-xpk2t"[ label="80/TCP/\n", style=dashed ];
+	"Endpoints_redis-follower"->"Pod_redis-follower-7b9cdf45b9-k5trw"[ label="6379/TCP/\n", style=dashed ];
+	"Endpoints_redis-follower"->"Pod_redis-follower-7b9cdf45b9-fbhqb"[ label="6379/TCP/\n", style=dashed ];
+	"Endpoints_redis-leader"->"Pod_redis-leader-5596fc7b68-krrsc"[ label="6379/TCP/\n", style=dashed ];
+	"Service_frontend"->"Endpoints_frontend"[ label="80/TCP/\n", style=dashed ];
+	"Service_kubernetes"->"Endpoints_kubernetes"[ label="443/TCP/https\n", style=dashed ];
+	"Service_redis-follower"->"Endpoints_redis-follower"[ label="6379/TCP/\n", style=dashed ];
+	"Service_redis-leader"->"Endpoints_redis-leader"[ label="6379/TCP/\n", style=dashed ];
 	subgraph "namespace_default" {
 	style=dotted;
 	"namespace_default" [ height=0, image="assets/namespaces.png", label="\n\n\n\n\n\n\n\n\ndefault", margin=0, penwidth=0, width=0 ];
@@ -88,12 +91,12 @@ digraph Visualization {
 	subgraph rank_0120 {
 	rank=same;
 	style=invis;
-	"Pod_frontend-7fd64c8b4c-hpztc" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-hpztc", penwidth=0 ];
-	"Pod_frontend-7fd64c8b4c-pld9z" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-pld9z", penwidth=0 ];
-	"Pod_frontend-7fd64c8b4c-sbbdt" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-sbbdt", penwidth=0 ];
-	"Pod_redis-follower-7b9cdf45b9-6hzpj" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9-6hzpj", penwidth=0 ];
-	"Pod_redis-follower-7b9cdf45b9-t2wrf" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9-t2wrf", penwidth=0 ];
-	"Pod_redis-leader-5596fc7b68-4zzz5" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-leader-5596fc7b68-4zzz5", penwidth=0 ];
+	"Pod_frontend-7fd64c8b4c-kw4cs" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-kw4cs", penwidth=0 ];
+	"Pod_frontend-7fd64c8b4c-tvc2b" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-tvc2b", penwidth=0 ];
+	"Pod_frontend-7fd64c8b4c-xpk2t" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nfrontend-7fd64c8b4c-xpk2t", penwidth=0 ];
+	"Pod_redis-follower-7b9cdf45b9-fbhqb" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9-fbhqb", penwidth=0 ];
+	"Pod_redis-follower-7b9cdf45b9-k5trw" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-follower-7b9cdf45b9-k5trw", penwidth=0 ];
+	"Pod_redis-leader-5596fc7b68-krrsc" [ image="assets/pods.png", label="\n\n\n\n\n\n\n\n\nredis-leader-5596fc7b68-krrsc", penwidth=0 ];
 	node_0120 [ height=0, margin=0, style=invis, width=0 ];
 
 }
