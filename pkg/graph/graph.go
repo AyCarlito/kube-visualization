@@ -40,10 +40,17 @@ func NewGraph(a, o string) *Grapher {
 
 // connection is a link between two Kubernetes objects.
 type connection struct {
+	label           string
 	sourceName      string
 	sourceKind      string
 	destinationName string
 	destinationKind string
+}
+
+// sanitizedLabel returns the sanitized label of a connection.
+// The label is wrapped in double quotes.
+func (c *connection) sanitizedLabel() string {
+	return fmt.Sprintf("\"%s\"", c.label)
 }
 
 // getSubgraphName returns the name of a subgraph in a gographviz.Graph.
@@ -149,7 +156,11 @@ func (g *Grapher) Connect() {
 		if _, ok := g.graph.Edges.SrcToDsts[sourceNodeName][dstNodeName]; ok {
 			continue
 		}
-		g.graph.AddEdge(sourceNodeName, dstNodeName, true, map[string]string{"style": "dashed"})
+		attrs := map[string]string{"style": "dashed"}
+		if connection.label != "" {
+			attrs["label"] = connection.sanitizedLabel()
+		}
+		g.graph.AddEdge(sourceNodeName, dstNodeName, true, attrs)
 
 	}
 }
@@ -181,7 +192,19 @@ func (g *Grapher) Populate(objects *unstructured.UnstructuredList, resource conf
 
 		// Services are connected to Endpoints by name.
 		if kind == Service {
+			service := &corev1.Service{}
+			runtime.DefaultUnstructuredConverter.FromUnstructured(object.UnstructuredContent(), service)
+			// Consider two ports:
+			//     - &ServicePort{Name:api,Protocol:TCP,Port:8080,TargetPort:{1 0 api},NodePort:0,AppProtocol:nil,}
+			//     - &ServicePort{Name:metrics,Protocol:TCP,Port:3001,TargetPort:{0 3001 },NodePort:0,AppProtocol:nil,}
+			// Generate a label for the connection:
+			//     8080/TCP/api\n3001/TCP/metrics
+			var connectionLabel string
+			for _, port := range service.Spec.Ports {
+				connectionLabel += fmt.Sprintf("%d/%s/%s\\n", port.Port, port.Protocol, port.Name)
+			}
 			g.connections = append(g.connections, connection{
+				label:           connectionLabel,
 				sourceName:      name,
 				sourceKind:      kind,
 				destinationName: name,
@@ -198,7 +221,17 @@ func (g *Grapher) Populate(objects *unstructured.UnstructuredList, resource conf
 					if address.TargetRef == nil || address.TargetRef.Kind != Pod {
 						continue
 					}
+					// Consider two ports:
+					//     - &EndpointPort{Name:api,Port:8080,Protocol:TCP,AppProtocol:nil,}
+					//     - &EndpointPort{Name:metrics,Port:3001,Protocol:TCP,AppProtocol:nil,}
+					// Generate a label for the connection:
+					//     8080/TCP/api\n3001/TCP/metrics
+					var connectionLabel string
+					for _, port := range subset.Ports {
+						connectionLabel += fmt.Sprintf("%d/%s/%s\\n", port.Port, port.Protocol, port.Name)
+					}
 					g.connections = append(g.connections, connection{
+						label:           connectionLabel,
 						sourceName:      name,
 						sourceKind:      kind,
 						destinationName: address.TargetRef.Name,
@@ -226,6 +259,7 @@ func (g *Grapher) Populate(objects *unstructured.UnstructuredList, resource conf
 						continue
 					}
 					g.connections = append(g.connections, connection{
+						label:           path.Path,
 						sourceName:      name,
 						sourceKind:      kind,
 						destinationName: serviceName,
