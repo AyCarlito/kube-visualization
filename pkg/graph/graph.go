@@ -137,17 +137,19 @@ func (g *Grapher) Scaffold(name, namespace string, ranks []int) {
 func (g *Grapher) Connect() {
 	// Now create the edges for any connections that have been tracked.
 	for _, connection := range g.connections {
+		sourceNodeName := getSanitizedObjectName(connection.sourceName, connection.sourceKind)
 		// It's possible that the connection may be towards a resource that isn't part of this visualisation.
 		// Check for the existence of the source node first, and skip if it does not exist.
-		if _, ok := g.graph.Nodes.Lookup[getSanitizedObjectName(connection.sourceName, connection.sourceKind)]; !ok {
+		if _, ok := g.graph.Nodes.Lookup[sourceNodeName]; !ok {
 			continue
 		}
-		g.graph.AddEdge(
-			getSanitizedObjectName(connection.sourceName, connection.sourceKind),
-			getSanitizedObjectName(connection.destinationName, connection.destinationKind),
-			true,
-			map[string]string{"style": "dashed"},
-		)
+		dstNodeName := getSanitizedObjectName(connection.destinationName, connection.destinationKind)
+		// There may already be a connection between the source and destination node.
+		// We only want to represent one.
+		if _, ok := g.graph.Edges.SrcToDsts[sourceNodeName][dstNodeName]; ok {
+			continue
+		}
+		g.graph.AddEdge(sourceNodeName, dstNodeName, true, map[string]string{"style": "dashed"})
 
 	}
 }
