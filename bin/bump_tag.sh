@@ -32,8 +32,11 @@ patch=$(echo "${major_minor_patch}" | cut --delimiter=. --fields=3)
 commits=$(git log --oneline --no-decorate --pretty=format:"%s" "${latest_tag_commit}"..HEAD)
 if echo "$commits" | grep -E "^BREAKING(.*):" &>/dev/null; then
     ((major++))
+    minor=0
+    patch=0
 elif echo "$commits" | grep -E "^feat(.*):" &>/dev/null; then
     ((minor++))
+    patch=0
 elif echo "$commits" | grep -E "^fix(.*):" &>/dev/null; then
     ((patch++))
 fi
