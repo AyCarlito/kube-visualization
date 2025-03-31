@@ -95,7 +95,7 @@ create-release-branch: generate-latest-tag ## Creates a release branch.
 	./bin/release.sh
 
 .PHONY: create-release-notes
-create-release-notes: generate-latest-tag ## Creates release notes.
+create-release-notes:  ## Creates release notes.
 	./bin/generate_release_notes.sh
 
 ##@ Build Dependencies

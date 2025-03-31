@@ -8,12 +8,14 @@ readonly PULL_REQUEST_BASE
 
 latest_tag=$(git describe --tags --abbrev=0)
 latest_tag_commit=$(git rev-list -n 1 "${latest_tag}")
+previous_tag=$(git describe --abbrev=0 --tags "$(git rev-list --tags --skip=1 --max-count=1)")
+previous_tag_commit=$(git rev-list -n 1 "${previous_tag}")
 
 changelog="${GIT_ROOT}/CHANGELOG/CHANGELOG-$latest_tag.md"
 readonly changelog
 
-# Retrieve all the commits between the current commit and the commit corresponding to the latest tag.
-commits=$(git log --oneline --no-decorate --pretty=format:"%s" "${latest_tag_commit}"..HEAD)
+# Retrieve all the commits between the previous tag and latest tag.
+commits=$(git log --oneline --no-decorate --pretty=format:"%s" "${previous_tag_commit}".."${latest_tag_commit}")
 
 breaking_changes=$(echo "${commits}" | grep -E "^BREAKING(.*):" | awk -F':' '{print "-" $2}')
 features=$(echo "${commits}" | grep -E "^feat(.*):" | awk -F':' '{print "-" $2}')
