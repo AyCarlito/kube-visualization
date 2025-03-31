@@ -20,7 +20,7 @@ jobs:
       run: |
         make create-release-branch
 
-    - name: Push release notes.
+    - name: Create release notes.
       run: |
         make create-release-notes
         git config user.name 'github-actions[bot]'
