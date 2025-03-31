@@ -1,8 +1,6 @@
 # Binaries
 bin/*
-!bin/bump_tag.sh
-!bin/get_version.sh
-!bin/release.sh
+!bin/*.sh
 
 # Artifacts
 assets/output.*

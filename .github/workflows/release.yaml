@@ -19,3 +19,10 @@ jobs:
     - name: Create release branch.
       run: |
         make create-release-branch
+
+    - name: Push release notes.
+      run: |
+        make create-release-notes
+        git add CHANGELOG
+        git commit -m "chore: release notes"
+        git push
