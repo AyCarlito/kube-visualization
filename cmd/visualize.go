@@ -18,7 +18,7 @@ func init() {
 // visualizeCmd is the command for visualising resources in a Kubernetes cluster.
 var visualizeCmd = &cobra.Command{
 	Use:   "visualize",
-	Short: "List resources in a namespace and generate a heirarchical graph of them",
+	Short: "List resources in a namespace and generate a heirarchical graph of them.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg, err := config.NewConfig(configurationFile)
 		if err != nil {

@@ -31,7 +31,7 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:           "kube-visualization",
-	Short:         "Allows resources in a given namespace in a Kubernetes cluster to be visualised",
+	Short:         "Allows resources in a given namespace in a Kubernetes cluster to be visualized.",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
