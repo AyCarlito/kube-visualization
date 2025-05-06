@@ -16,6 +16,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&namespace, "namespace", "default", "Namespace of resources.")
 	rootCmd.PersistentFlags().StringVar(&outputFile, "output", "assets/output.dot", "Path to output file.")
 	rootCmd.PersistentFlags().StringVar(&labelSelector, "label-selector", "", "Filter resources by label. Comma separated key-value pairs.")
+	rootCmd.PersistentFlags().StringVar(&kubeConfigPath, "kubeconfig", "", "Path to a kubeconfig file.")
 }
 
 // CLI Flags
@@ -25,6 +26,7 @@ var (
 	outputFile        string
 	namespace         string
 	labelSelector     string
+	kubeConfigPath    string
 )
 
 var rootCmd = &cobra.Command{

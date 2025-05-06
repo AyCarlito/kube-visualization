@@ -21,13 +21,15 @@ type OptFunc func(*clientOpts)
 
 // clientOpts are the configuration options for the Client.
 type clientOpts struct {
-	labelSelector string
+	labelSelector  string
+	kubeConfigPath string
 }
 
 // defaultOpts return the default configuration options for a Client
 func defaultOpts() clientOpts {
 	return clientOpts{
-		labelSelector: "",
+		labelSelector:  "",
+		kubeConfigPath: "",
 	}
 }
 
@@ -35,6 +37,13 @@ func defaultOpts() clientOpts {
 func WithLabelSelector(ls string) OptFunc {
 	return func(o *clientOpts) {
 		o.labelSelector = ls
+	}
+}
+
+// WithKubeConfigPath returns an optFunc to mutate the kubeConfigPath configuration option of the Client.
+func WithKubeConfigPath(p string) OptFunc {
+	return func(o *clientOpts) {
+		o.kubeConfigPath = p
 	}
 }
 
@@ -54,8 +63,9 @@ func NewClient(opts ...OptFunc) (*Client, error) {
 
 	restConfiguration, err := rest.InClusterConfig()
 	if err != nil {
-		kubeconfig := clientcmd.NewDefaultClientConfigLoadingRules().GetDefaultFilename()
-		restConfiguration, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+		kubeConfigLoadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		kubeConfigLoadingRules.ExplicitPath = o.kubeConfigPath
+		restConfiguration, err = clientcmd.BuildConfigFromFlags("", kubeConfigLoadingRules.GetDefaultFilename())
 		if err != nil {
 			return nil, fmt.Errorf("failed to get REST configuration: %v", err)
 		}

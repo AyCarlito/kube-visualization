@@ -25,7 +25,7 @@ var visualizeCmd = &cobra.Command{
 			panic(err)
 		}
 
-		client, err := client.NewClient(client.WithLabelSelector(labelSelector))
+		client, err := client.NewClient(client.WithLabelSelector(labelSelector), client.WithKubeConfigPath(kubeConfigPath))
 		if err != nil {
 			panic(fmt.Errorf("failed to create new client: %v", err))
 		}
