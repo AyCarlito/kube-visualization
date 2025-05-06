@@ -93,7 +93,7 @@ arguments & flags:
 
 ```shell
 ./bin/kube-visualization --help
-Allows resources in a given namespace in a Kubernetes cluster to be visualised
+Allows resources in a given namespace in a Kubernetes cluster to be visualized.
 
 Usage:
   kube-visualization [command]
@@ -101,12 +101,13 @@ Usage:
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
   help        Help about any command
-  visualize   List resources in a namespace and generate a heirarchical graph of them
+  visualize   List resources in a namespace and generate a heirarchical graph of them.
 
 Flags:
       --assets string           Path to assets directory. (default "assets/")
       --config string           Path to configuration file. (default "config/config.json")
   -h, --help                    help for kube-visualization
+      --kubeconfig string       Path to a kubeconfig file.
       --label-selector string   Filter resources by label. Comma separated key-value pairs.
       --namespace string        Namespace of resources. (default "default")
       --output string           Path to output file. (default "assets/output.dot")
@@ -118,7 +119,7 @@ Use "kube-visualization [command] --help" for more information about a command.
 
 - Follow the [Deploying PHP Guestbook application with Redis](https://kubernetes.io/docs/tutorials/stateless-application/guestbook/)
 Kubernetes tutorial.
-- After the resources are deployed, generate the [dot graph](./examples/guestbook.dot):
+- After the resources are deployed, generate the [dot graph](./docs/guestbook.dot):
 
 ```shell
 make run
@@ -130,4 +131,4 @@ make run
 make generate
 ```
 
-![PNG conversion](./examples/guestbook.png)
+![PNG conversion](./docs/guestbook.png)
